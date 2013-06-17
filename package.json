@@ -1,0 +1,17 @@
+
+
+{
+    "name": "chatp2p"
+  , "description": "A demo app in nodejs illustrating use of express, socket.io"
+  , "version": "3.0.0"
+  , "private": false
+  , "author": "nour sammour <nour.sammour@hotmail.com>"
+  , "engines": {
+        "node": "0.10.2"
+    }
+  , "dependencies": {
+      "express": "latest"
+    , "socket.io": "latest"
+  }
+}
+

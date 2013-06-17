@@ -1,0 +1,64 @@
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>
+	var socket = io.connect('http://' + document.location.host);
+	var username = ''
+
+	socket.on('connect', function(){
+		username = prompt("What's your name?");
+		socket.emit('adduser', username);
+	});
+
+	socket.on('pull', function (data) {
+		$( '[chat-stage='+ data.channel+']').append('<b>'+data.from+ ':</b> ' + data.msg + '<br>');
+	});
+	
+
+	socket.on('updateusers', function(users) {
+		$('#users').empty();
+		$('#users').append('<div><a href="#" onclick="openPublicChannal()">pulic chat</a></div>');
+		$.each(users, function(key, value) {
+			if (value!=username)
+				$('#users').append('<div><a href="#" onclick="openChannel(\''+key+'\')">' + value + '</a></div>');
+		});
+	});
+
+	function openChannel(withUser){
+		socket.emit('openChannal', withUser);
+	}
+	function openPublicChannal(){
+		socket.emit('openPublicChannal');
+	}
+	socket.on('channelOpened', function (data) {
+		
+		$('#data').attr('chat-channel',data.channel);
+		$('#stage').attr('chat-stage',data.channel);
+		$('#stage').html('')
+	});
+
+	$(function(){
+		$('#data').keypress(function(e) {
+			
+			if(e.which == 13) {
+				var message =
+				{
+					from:username,
+					msg:$('#data').val(),
+					channel:$(this).attr('chat-channel')
+				};
+				$('#data').val('');
+				socket.emit('push', message);
+			}
+		});
+	});
+
+</script>
+<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+	<b>users</b>
+	<div id="users"></div>
+</div>
+<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+<div id="conversations"></div>
+	<div id="stage" chat-stage="publicChannel"></div>
+	<input id="data" chat-channel="publicChannel" style="width:200px;" />
+</div>
